@@ -3,7 +3,10 @@ from teacher import Teacher
 from parent import Parent
 from datetime import datetime
 
-def load_teachers():
+def load_teachers(_start_date: datetime,
+                 _meeting_duration: int,
+                 _start_time: datetime,
+                 _end_time: datetime):
     result = list()
     f = open("data/teachers", "r")
     header = 0
@@ -17,7 +20,7 @@ def load_teachers():
             classes = line_list[1].split(",")
             for i in range(len(classes)):
                 classes[i] = classes[i].strip(" ")
-            result.append(Teacher(name, classes)) #list of objects (4)
+            result.append(Teacher(name, classes, _start_date, _meeting_duration, _start_time, _end_time)) #list of objects (4)
     return result
 
 def load_students(all_teachers: list):
@@ -97,7 +100,8 @@ while input_date_time == "":
         input_date_time = ""
         print("ERROR: Incorrect time format")
 
-teachers_list = load_teachers()
+
+teachers_list = load_teachers(start_date, meeting_duration, start_time, end_time)
 #for tchr1 in teachers_list:
     #print(tchr1.name, tchr1.classes)
 
@@ -116,4 +120,6 @@ for prn in parents_list:
         print(std2.name, std2.grade)
         for tchr3 in std2.teachers:
             print("\t", tchr3.name)
+
+
 
