@@ -40,7 +40,11 @@ def load_students(all_teachers: list):
             result.append(stdnt)
     return result
 
-def load_parents(stud_list: list):
+def load_parents(stud_list: list,
+                 _start_date: datetime,
+                 _meeting_duration: int,
+                 _start_time: datetime,
+                 _end_time: datetime):
     result = list()
     f = open("data/siblings", "r")
     header = 0
@@ -57,10 +61,10 @@ def load_parents(stud_list: list):
                         children_list.append(student)
                         stud_list.remove(student)
                         break
-            parent = Parent(children_list)
+            parent = Parent(children_list, _start_date,_meeting_duration,_start_time,_end_time)
             result.append(parent)
     for std in stud_list:
-        prnt = Parent([std])
+        prnt = Parent([std], _start_date,_meeting_duration,_start_time,_end_time)
         result.append(prnt)
     return result
 '''
@@ -111,15 +115,32 @@ students_list = load_students(teachers_list)
     #for tchr2 in std.teachers:
         #print("\t", tchr2.name)
 
-parents_list = load_parents(students_list)
-n = 0
+parents_list = load_parents(students_list,start_date, meeting_duration, start_time, end_time)
+
 for prn in parents_list:
+    prn.request_meetings()
+
+for tchr in teachers_list:
+    print("="*30,f'\nTEACHER SHEDULE FOR {tchr.name}')
+    tchr.df_schedule.dropna(inplace=True)
+    tchr.df_schedule.to_csv(f"data/teacher_shedule_{tchr.name}.csv")
+    print(tchr.df_schedule)
+
+k = 0
+for prn in parents_list:
+    k += 1
+    print("=" * 30, f'\nPARENT SHEDULE FOR PARENT {k}')
+    prn.df_schedule.dropna(inplace=True)
+    prn.df_schedule.to_csv(f"data/parent_shedule_{k}.csv")
+    print(prn.df_schedule)
+
+'''
     n += 1
     print("="*30, "\nPARENT ", n)
     for std2 in prn.kids:
         print(std2.name, std2.grade)
         for tchr3 in std2.teachers:
             print("\t", tchr3.name)
-
+'''
 
 
