@@ -1,9 +1,11 @@
 from datetime import datetime, timedelta
 import pandas as pd
+
+from scheduler import Scheduler
 from teacher import Teacher
 from student import Student
 
-class Parent():
+class Parent(Scheduler):
     def __init__(self,
                  kids: list,
                  start_date: datetime,
@@ -20,15 +22,8 @@ class Parent():
         :param start_time:начален час на срещите през деня
         :param end_time:краен час на срещите за деня
         '''
-        #запазва параметрите на конструктора в атрибути на класа.
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         self.kids = kids
-        self.df_schedule = pd.DataFrame()#създава dataFrame, които ще съдържа графика на родителя
-        self.meeting_duration = meeting_duration
-        self.daily_start_time = start_time
-        self.daily_end_time = end_time
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self.create_schedule(start_date)#запълва графика за първия ден с часове.
+        super().__init__(start_date, meeting_duration, start_time, end_time)
 
 
     def create_schedule(self, schedule_date: datetime):
@@ -38,25 +33,7 @@ class Parent():
         :param schedule_date: датата за която трябва да бъдат изчислени часовете.
         :return: променя self.df_schedule
         '''
-        # конструираме началото(start_t) и края (end_t) на графика за деня, като комбинираме подадената дата със атрибутите на класа self.daily_start_time.time,self.daily_end_time.time()
-        # ~~~~~~~~~~~~~~~
-        start_t = datetime.combine(schedule_date.date(), self.daily_start_time.time())
-        end_t = datetime.combine(schedule_date.date(), self.daily_end_time.time())
-        # ~~~~~~~~~~~~~~~
-        df_new_schedule = pd.DataFrame()#създава локален dateFrame в който ще има празен график
-        df_new_schedule["Meeting Date"] = pd.date_range(start=start_t, end=end_t, freq=f'{self.meeting_duration}min')#запълва колоната meeting date с часове през определен интервал
-        df_new_schedule.set_index("Meeting Date", inplace=True)# превръща колоната Meeting Date в индекс
-        df_new_schedule["Student Name"] = df_new_schedule.fillna('', axis='columns', inplace=True)#добавя колоната Student Name и запълва колоната с None
-        df_new_schedule["Teacher Name"] = df_new_schedule["Student Name"].copy()#създава колоната Teacher name и копира None стойностите от Student Name
-        try:
-            # за да се избегне повторение на часовете за срещи се използва verify_integrity=True
-            self.df_schedule = self.df_schedule.append(df_new_schedule, verify_integrity=True)
-            #   verify_integritybool, default False
-            #           If True, raise ValueError on creating index with duplicates.
-            self.df_schedule.sort_index(inplace=True)
-        except ValueError:
-            # при повторение на часа - self.df_schedule не се променя
-            pass
+        super().create_schedule(schedule_date, True)
 
     def reservation(self, teacher: Teacher, student: Student):
         '''
